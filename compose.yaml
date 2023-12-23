@@ -1,0 +1,59 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8001:80"
+
+  backend_usuarios:
+    build: ./backend/usuarios
+    ports:
+      - "8002:8000"
+    environment:
+      FLASK_DEBUG: "true"
+      user: ${user}
+      password: ${password}
+      host: ${host}
+      port: ${port}
+      database: ${database}
+    restart: on-failure
+    depends_on:
+      - database
+
+  backend_detalles:
+    build: ./backend/detalles
+    ports:
+      - "8003:8000"
+    environment:
+      FLASK_DEBUG: "true"
+      user: ${user}
+      password: ${password}
+      host: ${host}
+      port: ${port}
+      database: ${database}
+      # user: my_user
+      # password: 12345
+      # host: database
+      # port: 3306
+      # database: "my_test"
+    restart: on-failure
+    depends_on:
+      - database
+
+  database:
+    build: ./db
+    environment:
+      MYSQL_USER: ${user}
+      MYSQL_PASSWORD: ${password}
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - "./db:/docker-entrypoint-initdb.d"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8080:80
+    environment:
+      - PMA_HOST=database
+      - PMA_PORT=3306
+    depends_on:
+      - database

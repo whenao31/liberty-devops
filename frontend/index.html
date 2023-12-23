@@ -1,0 +1,211 @@
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <style>
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding:5px;
+      }
+    </style>
+    <script>
+      $(document).ready(function(){
+        // enviar usuarios
+        $("#button_enviar_usuario").click(function(){
+          var data=JSON.stringify({
+              "usuario": $("#usuario")[0].value
+            })
+          
+          $.ajax({
+            url: "http://localhost:8002/usuarios",
+            type: "POST",
+            data: data,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data,status){
+              alert("Usuario ingresado: " + data + "\nEstado: " + status);
+            }
+          })
+        });
+
+        // consultar usuarios
+        $("#button_consultar_usuario").click(function(){
+          $.get("http://localhost:8002/usuarios",
+          function(data,status){
+            var usuarios = $('#tabla-usuarios')
+            usuarios.find('tbody').html('')
+            if (data.length > 0) {
+              var i = 1;
+              // looping the returned data
+              Object.keys(data).map(k => {
+                  // creating new table row element
+                  var tr = $('<tr>')
+                  // first column data
+                  tr.append('<td>' + (i++) + '</td>')
+                  // second column data
+                  tr.append('<td>' + data[k].usuario + '</td>')
+                  // Append table row item to table body
+                  usuarios.find('tbody').append(tr)
+              })
+            } else {
+                // If returned json data is empty
+                var tr = $('<tr>')
+                tr.append('<th colspan=2>No hay datos que mostrar</th>')
+                usuarios.find('tbody').append(tr)
+            }
+          },
+          "json");
+        });
+
+        // consultar usuarios
+        $("#button_buscar_usuario").click(function(){
+          var url="http://localhost:8003/detalles?usuario=" + $("#buscar_usuario")[0].value;
+          $.get(url,
+          function(data,status){
+            var usuarios = $('#tabla-detalles-usuario')
+            usuarios.find('tbody').html('')
+            if (data.length > 0) {
+              var i = 1;
+              // looping the returned data
+              Object.keys(data).map(k => {
+                  // creating new table row element
+                  var tr = $('<tr id="tr'+ i +'">')
+                  // first column data
+                  tr.append('<td>' + (i) + '</td>')
+                  tr.append('<td>' + data[k].usuario + '</td>')
+                  tr.append('<td><input type="text" id="tr' + i + 'nombre" value="' + data[k].nombre + '"></input></td>')
+                  tr.append('<td><input type="text" id="tr' + i + 'edad" value="' + data[k].edad + '"></input></td>')
+                  tr.append('<td><input type="text" id="tr' + i + 'pais" value="' + data[k].pais + '"></input></td>')
+                  tr.append('<td><button onclick="modificar(\'' + data[k].usuario + '\', \'tr'+ i +'\')">Enviar Cambios</button></td>')
+                  i++;
+                  // Append table row item to table body
+                  usuarios.find('tbody').append(tr)
+              })
+            } else {
+                // If returned json data is empty
+                var tr = $('<tr>')
+                tr.append('<th colspan=6>No hay datos que mostrar</th>')
+                usuarios.find('tbody').append(tr)
+            }
+          },
+          "json");
+        });
+
+        // consultar usuarios
+        $("#button_consultar_detalles").click(function(){
+          $.get("http://localhost:8003/detalles",
+          function(data,status){
+            var usuarios = $('#tabla-detalles')
+            usuarios.find('tbody').html('')
+            if (data.length > 0) {
+              var i = 1;
+              // looping the returned data
+              Object.keys(data).map(k => {
+                  // creating new table row element
+                  var tr = $('<tr>')
+                  // first column data
+                  tr.append('<td>' + (i++) + '</td>')
+                  tr.append('<td>' + data[k].usuario + '</td>')
+                  tr.append('<td>' + data[k].nombre + '</td>')
+                  tr.append('<td>' + data[k].edad + '</td>')
+                  tr.append('<td>' + data[k].pais + '</td>')
+                  // Append table row item to table body
+                  usuarios.find('tbody').append(tr)
+              })
+            } else {
+                // If returned json data is empty
+                var tr = $('<tr>')
+                tr.append('<th colspan=5>No hay datos que mostrar</th>')
+                usuarios.find('tbody').append(tr)
+            }
+          },
+          "json");
+        });
+      });
+
+      function modificar(usuario, index){
+        var data=JSON.stringify({
+            "usuario": usuario,
+            "nombre": $("#"+index+"nombre")[0].value,
+            "edad": $("#"+index+"edad")[0].value,
+            "pais": $("#"+index+"pais")[0].value
+          })
+        
+        $.ajax({
+          url: "http://localhost:8003/detalles",
+          type: "POST",
+          data: data,
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          success: function(data,status){
+            alert("Usuario modificado: " + data + "\nEstado: " + status);
+          }
+        })
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Proyecto Final</h1>
+    <h2>Ingresar Usuarios</h2>
+    <p>
+      Usuario: <input type="text" id="usuario" name="usuario"></input></br>
+      <button id="button_enviar_usuario">Enviar</button>
+    </p></br>
+    <button id="button_consultar_usuario">Consultar usuarios</button></br>
+    </br>
+    <div>
+      <table id="tabla-usuarios">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    </div>
+    </br></br>
+    <h2>Modificar un usuario</h2>
+    <p>
+      Usuario: <input type="text" id="buscar_usuario" name="buscar_usuario"></input></br>
+      <button id="button_buscar_usuario">Buscar</button>
+    </p></br>
+    </br>
+    <div>
+      <table id="tabla-detalles-usuario">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Usuario</th>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Pa&iacute;s</th>
+                <th>Acci&oacute;n</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    </div>
+    </br></br>
+    <button id="button_consultar_detalles">Ver todos los detalles de usuarios</button></br>
+    </br>
+    <div>
+      <table id="tabla-detalles">
+        <thead>
+            <tr>
+              <th>#</th>
+              <th>Usuario</th>
+              <th>Nombre</th>
+              <th>Edad</th>
+              <th>Pa&iacute;s</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    </div>
+  </body>
+</html>
+
