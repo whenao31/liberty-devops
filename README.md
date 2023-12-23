@@ -55,7 +55,7 @@ To clone and run this application, you'll need [Git](https://git-scm.com) and th
 
 ```bash
 # Clone this repository
-$ git clone https://github.com/amitmerchant1990/electron-markdownify
+$ git clone https://github.com/whenao31/liberty-devops.git
 
 # Go into the folder
 $ cd cicd
